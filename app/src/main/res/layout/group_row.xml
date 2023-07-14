@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:contentPadding="10dp"
+    android:elevation="5dp"
+    app:cardBackgroundColor="#FFEB3B"
+    android:layout_margin="10dp"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        >
+
+        <ImageView
+            android:id="@+id/user_imageid"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/groups_24"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/groupName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Name"
+                android:textSize="20dp"
+                android:layout_marginBottom="5dp"
+                android:textStyle="bold"
+                />
+            <TextView
+                android:id="@+id/groupDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Email"
+                android:textSize="15dp"
+
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
