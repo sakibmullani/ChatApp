@@ -3,67 +3,65 @@ package com.example.chatapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class UserListAdapter extends BaseAdapter {
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
     private List<UserModel> userList;
-    private List<String> selectedUserIds;
+    private Set<String> selectedUserIds;
 
     public UserListAdapter(List<UserModel> userList) {
         this.userList = userList;
-        this.selectedUserIds = new ArrayList<>();
+        this.selectedUserIds = new HashSet<>();
     }
 
     public List<String> getSelectedUserIds() {
-        return selectedUserIds;
+        return new ArrayList<>(selectedUserIds);
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_list_item_multiple_choice, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public int getCount() {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        UserModel userModel = userList.get(position);
+        holder.userNameTextView.setText(userModel.getUserName());
+        holder.checkBox.setChecked(selectedUserIds.contains(userModel.getUserid()));
+    }
+
+    @Override
+    public int getItemCount() {
         return userList.size();
     }
 
-    @Override
-    public Object getItem(int position) {
-        return userList.get(position);
-    }
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView userNameTextView;
+        CheckBox checkBox;
 
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            checkBox = itemView.findViewById(R.id.checkBox);
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_list_item_multiple_choice, parent, false);
-        }
-
-        TextView userNameTextView = convertView.findViewById(R.id.userNameTextView);
-
-        UserModel userModel = userList.get(position);
-        userNameTextView.setText(userModel.getUserName());
-
-        CheckBox checkBox = convertView.findViewById(R.id.checkBox);
-        checkBox.setChecked(selectedUserIds.contains(userModel.getUserid()));
-        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                UserModel userModel = userList.get(getAdapterPosition());
+                String userId = userModel.getUserid();
                 if (isChecked) {
-                    selectedUserIds.add(userModel.getUserid());
+                    selectedUserIds.add(userId);
                 } else {
-                    selectedUserIds.remove(userModel.getUserid());
+                    selectedUserIds.remove(userId);
                 }
-            }
-        });
-
-        return convertView;
+            });
+        }
     }
 }
-

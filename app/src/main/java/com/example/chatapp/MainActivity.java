@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 //import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.DialogInterface;
@@ -117,10 +118,11 @@ public class MainActivity extends AppCompatActivity {
 
         EditText groupNameEditText = view.findViewById(R.id.groupNameEditText);
         EditText groupDescriptionEditText = view.findViewById(R.id.groupDescriptionEditText);
-        ListView membersListView = view.findViewById(R.id.membersListView);
+        RecyclerView membersRecyclerView = view.findViewById(R.id.membersListView);
 
         UserListAdapter userListAdapter = new UserListAdapter(userList);
-        membersListView.setAdapter(userListAdapter);
+        membersRecyclerView.setAdapter(userListAdapter);
+        membersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         builder.setPositiveButton("Create", null);
 
@@ -132,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         createGroupDialog = builder.create();
-
 
         createGroupDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -153,10 +154,11 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "Group Name must be at least 3 characters long", Toast.LENGTH_SHORT).show();
                         } else {
                             List<String> selectedUserIds = userListAdapter.getSelectedUserIds();
+
                             if (selectedUserIds.isEmpty()) {
                                 Toast.makeText(MainActivity.this, "Select at least one member for the group", Toast.LENGTH_SHORT).show();
                             } else {
-                                createGroup(groupName,groupDescription,selectedUserIds);
+                                createGroup(groupName, groupDescription, selectedUserIds);
                                 createGroupDialog.dismiss();
                             }
                         }
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
         createGroupDialog.show();
     }
+
 
     private void createGroup(String groupName, String groupDescription, List<String> selectedUserIds) {
         DatabaseReference groupRef = groupReference.push();
