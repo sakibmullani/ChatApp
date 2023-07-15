@@ -88,6 +88,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         holder.message_linearlayoutIdRight.setVisibility(View.GONE);
 
         if (message.isImage()) {
+            //display image
             if (message.getSenderId().equals(currentUserId)) {
                 holder.message_linearlayoutIdLeft.setVisibility(View.GONE);
                 holder.message_linearlayoutIdRight.setVisibility(View.VISIBLE);
