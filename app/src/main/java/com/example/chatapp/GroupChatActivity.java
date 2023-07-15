@@ -44,6 +44,9 @@ public class GroupChatActivity extends AppCompatActivity {
     private GroupMessageAdapter messageAdapter;
     private String groupId, groupName, groupDesc;
     private StorageReference storageReference;
+    String senderName;
+    List<MessageModel>messageModelList;
+    String receiverId,receiverName;
 
     private static final int REQUEST_IMAGE_PICK = 1;
 
@@ -81,7 +84,7 @@ public class GroupChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String message = binding.enterMassage.getText().toString().trim();
                 if (!message.isEmpty()) {
-                    sendMessage(message, false);
+                    sendMessage(message, false,receiverId,receiverName);
                     binding.enterMassage.setText("");
                 }
             }
@@ -95,18 +98,52 @@ public class GroupChatActivity extends AppCompatActivity {
         });
     }
 
+
     private void loadGroupMessages() {
         messagesReference.addValueEventListener(new ValueEventListener() {
+            private List<MessageModel> messageModelList = new ArrayList<>();
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<MessageModel> messageList = new ArrayList<>();
+                messageModelList.clear();
+
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     MessageModel messageModel = dataSnapshot.getValue(MessageModel.class);
-                    messageList.add(messageModel);
+                  messageModelList.add(messageModel);
+
                 }
-                messageAdapter.setMessageList(messageList);
-                binding.recyclerChat.scrollToPosition(messageAdapter.getItemCount() - 1);
+
+                messageAdapter.clear();
+                messageAdapter.addAll(messageModelList);
+                binding.recyclerChat.scrollToPosition(messageModelList.size()-1);
+
+                for (MessageModel messageModel : messageModelList){
+                    String receiverId = messageModel.getReceiverId();
+                    if(receiverId==null)
+                    {
+                        receiverId="";
+                    }
+
+                    DatabaseReference receiverRef = FirebaseDatabase.getInstance().getReference("users").child(receiverId);
+                    receiverRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                String receiverName = snapshot.child("username").getValue(String.class);
+                                messageModel.setReceiverName(receiverName);
+                                //groupMessageAdapter.notifyDataSetChanged();
+                            }
+                        }
+
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -116,24 +153,41 @@ public class GroupChatActivity extends AppCompatActivity {
     }
 
 
-    private void sendMessage(String message, boolean isImage) {
+    private void sendMessage(String message, boolean isImage, String receiverId, String receiverName) {
         DatabaseReference messageRef = messagesReference.push();
-        String messageId =messageRef.getKey();
+        String messageId = messageRef.getKey();
         long timestamp = System.currentTimeMillis();
 
-        MessageModel messageModel = new MessageModel(messageId, currentUser.getUid(), message, timestamp);
-        messagesReference.child(messageId).setValue(messageModel)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            // Message sent successfully
-                        } else {
-                            Toast.makeText(GroupChatActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
+
+        // Retrieve the sender's username from the "users" node and set it
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("user").child(FirebaseAuth.getInstance().getUid());
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+
+                    String senderName = dataSnapshot.child("userName").getValue(String.class);
+
+                    // Create the MessageModel object with sender's username
+                    MessageModel messageModel = new MessageModel(messageId, FirebaseAuth.getInstance().getUid(),"",senderName, message, timestamp, isImage);
+
+                    messageAdapter.add(messageModel);
+                    messageRef.setValue(messageModel);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(GroupChatActivity.this, "Failed to send message", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        MessageModel messageModel = new MessageModel(messageId, FirebaseAuth.getInstance().getUid(),receiverId,receiverName,message, timestamp, isImage);
+        messageAdapter.add(messageModel);
+        messageRef.setValue(messageModel);
+        }
+
+
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -191,7 +245,7 @@ public class GroupChatActivity extends AppCompatActivity {
 
                     if (task.isSuccessful() && task.getResult() != null) {
                         Uri downloadUri = task.getResult();
-                        sendMessage(downloadUri.toString(), true);
+                        sendMessage(downloadUri.toString(), true,receiverId,receiverName);
                     } else {
                         Toast.makeText(GroupChatActivity.this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                     }

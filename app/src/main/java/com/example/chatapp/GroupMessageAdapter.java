@@ -45,6 +45,22 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         notifyDataSetChanged();
     }
 
+    public  void  add(MessageModel messageModel){
+        messageList.add(messageModel);
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
+        messageList.clear();
+        notifyDataSetChanged();
+    }
+
+    public  void  addAll(List<MessageModel>messageModels){
+        int previousSize =messageList.size();
+        messageList.addAll(messageModels);
+        notifyItemRangeInserted(previousSize,messageModels.size());
+    }
+
     /*public void deleteMessage(MessageModel message) {
         int position = messageList.indexOf(message);
         if (position != -1) {
@@ -118,7 +134,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
 
         } else {
             holder.leftTimeTextView.setText(formatTimestamp(message.getTime()));
-            holder.senderTextView.setText(message.getSenderName());
+            holder.senderTextView.setText(message.getReceiverName());
         }
 
         // Set long click listener for the item
@@ -135,6 +151,8 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
     public int getItemCount() {
         return messageList.size();
     }
+
+
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
 
