@@ -39,27 +39,40 @@ tools:context=".GroupChatActivity">
 
     >
 
+    <ImageView
+        android:id="@+id/sendAudio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:padding="15dp"
+        android:background="@drawable/circle_bg"
+        android:src="@drawable/audio_image"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <EditText
         android:id="@+id/enterMassage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:background="@drawable/edittext_bg"
-        android:hint="Enter Massage Here"
-        android:padding="10dp"
-        android:textSize="20dp"
+        android:layout_margin="5dp"
+        android:background="@drawable/edittext_bg_round_corner"
+        android:hint="Enter Here"
         android:inputType="textMultiLine"
         android:isScrollContainer="true"
-        android:maxLines="5"
-        android:singleLine="false"
+        android:maxLines="3"
         android:overScrollMode="always"
+        android:padding="10dp"
         android:scrollbarStyle="insideInset"
         android:scrollbars="vertical"
+        android:singleLine="false"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/uploadImage"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        app:layout_constraintEnd_toStartOf="@+id/sendImage"
+        app:layout_constraintStart_toEndOf="@+id/sendAudio" />
 
     <ImageView
         android:id="@+id/sendImage"
@@ -70,7 +83,7 @@ tools:context=".GroupChatActivity">
         android:padding="15dp"
         android:src="@drawable/send_image"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/uploadImage" />
 
     <ImageView
         android:id="@+id/uploadImage"
@@ -78,11 +91,11 @@ tools:context=".GroupChatActivity">
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:background="@drawable/circle_bg"
         android:padding="15dp"
         android:src="@drawable/image_upload"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/sendImage" />
-
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 </RelativeLayout>

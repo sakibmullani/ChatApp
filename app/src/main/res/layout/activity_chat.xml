@@ -31,13 +31,26 @@
         android:layout_below="@+id/appBar" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_margin="5dp"
         android:id="@+id/sendMassageLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp">
 
-        >
+        <ImageView
+            android:id="@+id/sendAudio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:padding="15dp"
+            android:background="@drawable/circle_bg"
+            android:src="@drawable/audio_image"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <EditText
             android:id="@+id/enterMassage"
@@ -45,21 +58,25 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/edittext_bg"
-            android:hint="Enter Massage Here"
-            android:padding="10dp"
-            android:textSize="20dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/edittext_bg_round_corner"
+            android:hint="Enter Here"
             android:inputType="textMultiLine"
             android:isScrollContainer="true"
-            android:maxLines="5"
-            android:singleLine="false"
+            android:maxLines="3"
             android:overScrollMode="always"
+            android:padding="10dp"
             android:scrollbarStyle="insideInset"
             android:scrollbars="vertical"
+            android:singleLine="false"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#008EFF"
+            android:textColorHint="#008EFF"
+            android:textSize="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/uploadImage"
-            app:layout_constraintStart_toStartOf="parent"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            app:layout_constraintEnd_toStartOf="@+id/sendImage"
+            app:layout_constraintStart_toEndOf="@+id/sendAudio"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/sendImage"
@@ -70,7 +87,7 @@
             android:padding="15dp"
             android:src="@drawable/send_image"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/uploadImage" />
 
         <ImageView
             android:id="@+id/uploadImage"
@@ -78,10 +95,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:background="@drawable/circle_bg"
             android:padding="15dp"
             android:src="@drawable/image_upload"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/sendImage" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
