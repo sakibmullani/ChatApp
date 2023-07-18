@@ -47,7 +47,7 @@ tools:context=".GroupChatActivity">
         android:layout_centerVertical="true"
         android:padding="15dp"
         android:background="@drawable/circle_bg"
-        android:src="@drawable/audio_image"
+        android:src="@drawable/mic_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -1,8 +1,12 @@
 package com.example.chatapp;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -33,11 +38,15 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
     private OnMessageLongClickListener messageLongClickListener;
     DatabaseReference messagesReference;
 
+    private MediaPlayer mediaPlayer;
+    private boolean isPlaying = false;
+    private int lastPlayedPosition = -1;
+
     public GroupMessageAdapter(Context context, String currentUserId, DatabaseReference messagesReference) {
         this.context = context;
         this.currentUserId = currentUserId;
         this.messageList = new ArrayList<>();
-        this.messagesReference=messagesReference;
+        this.messagesReference = messagesReference;
     }
 
     public void setMessageList(List<MessageModel> messageList) {
@@ -45,7 +54,7 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         notifyDataSetChanged();
     }
 
-    public  void  add(MessageModel messageModel){
+    public void add(MessageModel messageModel) {
         messageList.add(messageModel);
         notifyDataSetChanged();
     }
@@ -55,19 +64,11 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         notifyDataSetChanged();
     }
 
-    public  void  addAll(List<MessageModel>messageModels){
-        int previousSize =messageList.size();
+    public void addAll(List<MessageModel> messageModels) {
+        int previousSize = messageList.size();
         messageList.addAll(messageModels);
-        notifyItemRangeInserted(previousSize,messageModels.size());
+        notifyItemRangeInserted(previousSize, messageModels.size());
     }
-
-    /*public void deleteMessage(MessageModel message) {
-        int position = messageList.indexOf(message);
-        if (position != -1) {
-            messageList.remove(position);
-            notifyItemRemoved(position);
-        }
-    }*/
 
     public void setOnMessageLongClickListener(OnMessageLongClickListener listener) {
         this.messageLongClickListener = listener;
@@ -81,24 +82,26 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MessageViewHolder holder, @SuppressLint("RecyclerView") int position) {
         MessageModel message = messageList.get(position);
 
         holder.message_linearlayoutIdLeft.setVisibility(View.GONE);
         holder.message_linearlayoutIdRight.setVisibility(View.GONE);
 
         if (message.isImage()) {
-            //display image
+            // Display image
             if (message.getSenderId().equals(currentUserId)) {
                 holder.message_linearlayoutIdLeft.setVisibility(View.GONE);
                 holder.message_linearlayoutIdRight.setVisibility(View.VISIBLE);
                 holder.imageMessageRight.setVisibility(View.VISIBLE);
                 holder.massageIdRight.setVisibility(View.GONE);
 
+                holder.pauseButtonRight.setVisibility(View.GONE);
+                holder.playButtonRight.setVisibility(View.GONE);
+
                 Glide.with(context)
                         .load(message.getMessage())
                         .into(holder.imageMessageRight);
-
 
             } else {
                 holder.message_linearlayoutIdLeft.setVisibility(View.VISIBLE);
@@ -106,10 +109,41 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                 holder.imageMessageLeft.setVisibility(View.VISIBLE);
                 holder.massageIdLeft.setVisibility(View.GONE);
 
+                holder.pauseButtonLeft.setVisibility(View.GONE);
+                holder.playButtonLeft.setVisibility(View.GONE);
+
                 Glide.with(context)
                         .load(message.getMessage())
                         .into(holder.imageMessageLeft);
             }
+        } else if (message.isAudio()) {
+
+            // Display audio play option
+            if (message.getSenderId().equals(currentUserId)) {
+                holder.message_linearlayoutIdRight.setVisibility(View.VISIBLE);
+                holder.message_linearlayoutIdLeft.setVisibility(View.GONE);
+
+                holder.playButtonRight.setVisibility(View.VISIBLE);
+                holder.pauseButtonRight.setVisibility(View.GONE);
+
+                holder.imageMessageRight.setVisibility(View.GONE);
+                holder.massageIdRight.setVisibility(View.GONE);
+
+
+
+
+            } else {
+                holder.message_linearlayoutIdRight.setVisibility(View.GONE);
+                holder.message_linearlayoutIdLeft.setVisibility(View.VISIBLE);
+
+                holder.playButtonLeft.setVisibility(View.VISIBLE);
+                holder.pauseButtonLeft.setVisibility(View.GONE);
+
+                holder.imageMessageLeft.setVisibility(View.GONE);
+                holder.massageIdLeft.setVisibility(View.GONE);
+
+            }
+
         } else {
             // Display text message
             if (message.getSenderId().equals(currentUserId)) {
@@ -118,12 +152,18 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
                 holder.massageIdRight.setVisibility(View.VISIBLE);
                 holder.imageMessageRight.setVisibility(View.GONE);
 
+                holder.pauseButtonRight.setVisibility(View.GONE);
+                holder.playButtonRight.setVisibility(View.GONE);
+
                 holder.massageIdRight.setText(message.getMessage());
             } else {
                 holder.message_linearlayoutIdLeft.setVisibility(View.VISIBLE);
                 holder.message_linearlayoutIdRight.setVisibility(View.GONE);
                 holder.massageIdLeft.setVisibility(View.VISIBLE);
                 holder.imageMessageLeft.setVisibility(View.GONE);
+
+                holder.pauseButtonLeft.setVisibility(View.GONE);
+                holder.playButtonLeft.setVisibility(View.GONE);
 
                 holder.massageIdLeft.setText(message.getMessage());
             }
@@ -132,18 +172,53 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         // Set timestamp
         if (message.getSenderId().equals(currentUserId)) {
             holder.rightTimeTextView.setText(formatTimestamp(message.getTime()));
-
         } else {
             holder.leftTimeTextView.setText(formatTimestamp(message.getTime()));
             holder.senderTextView.setText(message.getReceiverName());
         }
 
-        // Set long click listener for the item
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-               showDeleteDialog(message);
+                showDeleteDialog(message);
                 return true;
+            }
+        });
+
+        holder.playButtonRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudio(message, position);
+                holder.playButtonRight.setVisibility(View.GONE);
+                holder.pauseButtonRight.setVisibility(View.VISIBLE);
+            }
+        });
+
+        holder.pauseButtonRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pauseAudio();
+                holder.pauseButtonRight.setVisibility(View.GONE);
+                holder.playButtonRight.setVisibility(View.VISIBLE);
+            }
+        });
+
+        holder.playButtonLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudio(message, position);
+                holder.playButtonLeft.setVisibility(View.GONE);
+                holder.pauseButtonLeft.setVisibility(View.VISIBLE);
+            }
+        });
+
+        holder.pauseButtonLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pauseAudio();
+                holder.playButtonLeft.setVisibility(View.VISIBLE);
+                holder.pauseButtonLeft.setVisibility(View.GONE);
             }
         });
     }
@@ -153,13 +228,11 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         return messageList.size();
     }
 
-
-
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
 
         TextView massageIdLeft, massageIdRight, leftTimeTextView, rightTimeTextView, senderTextView;
         ConstraintLayout message_linearlayoutIdLeft, message_linearlayoutIdRight;
-        ImageView imageMessageLeft, imageMessageRight;
+        ImageView imageMessageLeft, imageMessageRight, playButtonRight, pauseButtonRight, playButtonLeft, pauseButtonLeft;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -172,6 +245,10 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
             imageMessageLeft = itemView.findViewById(R.id.imageMessageLeft);
             imageMessageRight = itemView.findViewById(R.id.imageMessageRight);
             senderTextView = itemView.findViewById(R.id.senderTextView);
+            playButtonRight = itemView.findViewById(R.id.playButtonRight);
+            pauseButtonRight = itemView.findViewById(R.id.pauseButtonRight);
+            playButtonLeft = itemView.findViewById(R.id.playButtonLeft);
+            pauseButtonLeft = itemView.findViewById(R.id.pauseButtonLeft);
         }
     }
 
@@ -224,5 +301,77 @@ public class GroupMessageAdapter extends RecyclerView.Adapter<GroupMessageAdapte
         }
     }
 
+    private void playAudio(MessageModel message, int position) {
+        if (isPlaying) {
+            if (lastPlayedPosition == position) {
+                // Stop playing audio
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
+                isPlaying = false;
+                lastPlayedPosition = -1;
+            } else {
+                // Stop previously playing audio
+                mediaPlayer.stop();
+                mediaPlayer.release();
+                mediaPlayer = null;
 
+                // Start playing new audio
+                startPlayingAudio(message, position);
+            }
+        } else {
+            // Start playing audio
+            startPlayingAudio(message, position);
+        }
+    }
+
+    private void startPlayingAudio(MessageModel message, int position) {
+        try {
+            mediaPlayer = new MediaPlayer();
+
+            // Set the audio attributes for the media player
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build();
+            mediaPlayer.setAudioAttributes(audioAttributes);
+
+            // Set the data source for the media player
+            mediaPlayer.setDataSource(message.getMessage());
+
+            // Set the audio stream type for the media player
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+            // Prepare the media player
+            mediaPlayer.prepare();
+
+            // Start playing audio
+            mediaPlayer.start();
+            isPlaying = true;
+            lastPlayedPosition = position;
+
+            // Set completion listener to release media player resources
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    isPlaying = false;
+                    lastPlayedPosition = -1;
+                    notifyItemChanged(position); // Update the item to refresh the play/pause button
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Failed to play audio", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void pauseAudio() {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+            isPlaying = false;
+        }
+    }
 }

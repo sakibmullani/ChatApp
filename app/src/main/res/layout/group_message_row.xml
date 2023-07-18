@@ -60,6 +60,33 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/leftTimeTextView" />
 
+        <ImageView
+            android:id="@+id/playButtonLeft"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/play_button_black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/leftTimeTextView" />
+
+        <ImageView
+            android:id="@+id/pauseButtonLeft"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/pause_circle_black"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/leftTimeTextView" />
+
+<!--        <SeekBar-->
+<!--            android:id="@+id/audioSeekBarLeft"-->
+<!--            android:layout_width="200dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:max="100"-->
+<!--            android:progress="0"-->
+<!--            app:layout_constraintBottom_toBottomOf="@+id/playButtonLeft"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/playButtonLeft"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/leftTimeTextView" />-->
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -105,6 +132,33 @@
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rightTimeTextView" />
+
+        <ImageView
+            android:id="@+id/playButtonRight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/play_button"
+            app:layout_constraintEnd_toEndOf="@+id/imageMessageRight"
+            app:layout_constraintTop_toBottomOf="@+id/rightTimeTextView" />
+
+        <ImageView
+            android:id="@+id/pauseButtonRight"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/pause_circle_24"
+            app:layout_constraintEnd_toEndOf="@+id/imageMessageRight"
+            app:layout_constraintTop_toBottomOf="@+id/rightTimeTextView" />
+
+<!--        <SeekBar-->
+<!--            android:id="@+id/audioSeekBarRight"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:max="100"-->
+<!--            android:progress="0"-->
+<!--            app:layout_constraintBottom_toBottomOf="@+id/playButtonRight"-->
+<!--            app:layout_constraintEnd_toStartOf="@+id/playButtonRight"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/playButtonRight" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

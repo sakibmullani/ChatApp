@@ -6,7 +6,7 @@ public class MessageModel {
     long time;
     String imageUrl;
     private String senderName, receiverId, receiverName;
-    private boolean isImage;
+    private boolean isImage, isAudio;
 
 
     public MessageModel(String msgid, String senderId, String message, long time) {
@@ -29,7 +29,7 @@ public class MessageModel {
 
     }
 
-    public MessageModel(String msgid, String senderId, String receiverId, String receiverName, String message, long time, boolean isImage) {
+    public MessageModel(String msgid, String senderId, String receiverId, String receiverName, String message, long time, boolean isImage, boolean isAudio) {
         this.msgid = msgid;
         this.senderId = senderId;
         this.receiverId = receiverId;
@@ -37,6 +37,7 @@ public class MessageModel {
         this.message = message;
         this.time = time;
         this.isImage=isImage;
+        this.isAudio=isAudio;
     }
 
     public String getMsgid() {
@@ -109,5 +110,13 @@ public class MessageModel {
 
     public void setReceiverName(String receiverName) {
         this.receiverName = receiverName;
+    }
+
+    public boolean isAudio() {
+        return isAudio;
+    }
+
+    public void setAudio(boolean audio) {
+        isAudio = audio;
     }
 }
